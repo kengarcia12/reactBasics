@@ -24,9 +24,12 @@
               this.setState({ editing: true })
             },
             remove: function() {
-
+              console.log("Removing Comment");
+              this.props.deleteFromBoard(this.props.index)
             },
             save: function() {
+              var val = this.refs.newText.value;
+              this.props.updateCommentText(val, this.props.index);
               this.setState({ editing: false })
             },
             renderNormal: function() {
@@ -41,7 +44,7 @@
             renderForm: function() {
               return(
                 <div className="commentContainer">
-                  <textarea defaultValue={this.props.children} ></textarea>
+                  <textarea ref="newText" defaultValue={this.props.children} ></textarea>
                   <button className="button-success" onClick={this.save} >Save</button>
                 </div>
               );
@@ -56,12 +59,51 @@
             }
         });
 
-        ReactDOM.render(
+        var Board = React.createClass({
+
+          getInitialState: function() {
+            return {
+                      comments: []
+            }
+          },
+          addComment: function(text){
+            var arr = this.state.comments;
+            arr.push(text);
+            this.setState({ comments: arr })
+          },
+          removeComment: function(i){
+            console.log('Removing comments : ' + i);
+            var arr =  this.state.comments;
+            arr.splice(i, 1);
+            this.setState({ comments: arr })
+          },
+          updateComment: function(newText, i){
+            console.log("Updating comment");
+            var arr = this.state.comments;
+            arr[i] = newText;
+            this.setState({ comments: arr })
+          },
+          eachComment: function(text, i){
+            return (
+                    <Comment key={i} index={i} updateCommentText={this.updateComment} deleteFromBoard={this.removeComment}>
+                        {text}
+                    </Comment>
+                   );
+          },
+          render: function(){
+            return (
+                    <div>
+                      <button className="button-info create" onClick={this.addComment.bind(null,'Enter Comment')}>Add New</button>
                       <div className="board">
-                        <Comment>Hey Now</Comment>
-                        <Comment>Tuna</Comment>
-                        <Comment>Bread</Comment>
-                      </div>,document.getElementById('container'));
+                        { this.state.comments.map(this.eachComment)}
+                      </div>
+                    </div>
+            );
+          }
+
+        });
+
+        ReactDOM.render(<Board />,document.getElementById('container'));
     </script>
 
 </body>
